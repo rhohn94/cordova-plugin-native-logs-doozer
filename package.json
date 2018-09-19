@@ -1,0 +1,12 @@
+{
+    "name": "cordova-plugin-native-logs-doozer",
+    "version": "1.0.0",
+    "description": "Customized native logs for Android to feature timestamps.",
+    "main": "nativeLogs.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Robert Hohn",
+    "license": "MIT"
+  }
+  
