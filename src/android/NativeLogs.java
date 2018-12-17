@@ -17,34 +17,49 @@ import android.content.ClipboardManager;
 import android.content.Context;
 
 public class NativeLogs extends CordovaPlugin {
-
     private final String LOG_TAG = "CDVLOGCAT";
 
+    @Override
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
+    }
+
     private void clearLog() {
-
         LOG.d(LOG_TAG, "clearLog");
-
         try {
             Runtime.getRuntime().exec("logcat -c");
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-
-        super.initialize(cordova, webView);
-        this.clearLog();
+    public void testExceptionThrow() {
+        if (true) throw new RuntimeException("DELIBERATELY THROWN TEST EXCEPTION");
     }
 
-    private  String getLogsFromLogCat(int _nbLines) {
+    public boolean execute(String action, JSONArray args, CallbackContext cbContext) throws JSONException {
+        if (action.equals("getLog")) {
+            String cliArgs = args.getString(0);
 
+            LinkedList<String> log = getLogsFromLogCat(cliArgs);
+
+            cbContext.success(new JSONArray(log));
+            return true;
+        }
+        if (action.equals("testException")) {
+            testExceptionThrow();
+        }
+        if (action.equals("clearLog")) {
+            clearLog();
+        }
+        return false;
+    }
+
+    private  LinkedList<String> getLogsFromLogCat(String cliArgs) {
         LinkedList<String> logs = new LinkedList<String>();
 
         try {
-            Process process = Runtime.getRuntime().exec("logcat -d -v time");
+            Process process = Runtime.getRuntime().exec("logcat -d -v time " + cliArgs);
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
 
@@ -57,40 +72,6 @@ public class NativeLogs extends CordovaPlugin {
             e.printStackTrace();
         }
 
-        String log = "";
-
-        int nb = 0;
-        while( (nb < _nbLines) && (logs.size() > 0) ) {
-            log += logs.getLast();
-            log += "\n";
-            logs.removeLast();
-            nb++;
-        }
-        return log;
+        return logs;
     }
-
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext)
-            throws JSONException {
-
-        if (action.equals("getLog")) {
-
-            int nbLines = args.getInt(0);
-            boolean bCopyToClipBoard = args.getBoolean(1);
-
-            String log = getLogsFromLogCat(nbLines);
-
-            if (bCopyToClipBoard) {
-                ClipboardManager clipboard = (ClipboardManager) cordova.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("logcat", log);
-                clipboard.setPrimaryClip(clip);
-            }
-            callbackContext.success(log);
-            return true;
-
-        }
-        else
-            return false;
-    }
-
-
 }
