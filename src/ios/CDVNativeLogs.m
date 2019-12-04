@@ -50,27 +50,13 @@
     NSString* log = @"";
     NSArray *brokenByLines=[stringContent componentsSeparatedByString:@"\n"];
     
-
-    NSRange endRange = NSMakeRange(brokenByLines.count >= nbLines ?
-                                   brokenByLines.count - nbLines
-                                : 0, MIN(brokenByLines.count, nbLines));
-    
-    for(id line in [brokenByLines subarrayWithRange:endRange])
-    {
-        if ([line length]==0)
-            continue ;
-      
-        log = [log stringByAppendingString:line];
-        log = [log stringByAppendingString:@"\n"];    
-    }
-    
     if (bClipboard) 
     {
         UIPasteboard *pb = [UIPasteboard generalPasteboard];
         [pb setString:log];
     }
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:log];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:brokenByLines];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
   
