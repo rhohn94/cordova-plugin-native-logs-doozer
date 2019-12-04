@@ -22,7 +22,7 @@
 
     
     NSString* callbackId = command.callbackId;
-    if (command.arguments.count != 2)
+    if (command.arguments.count != 1)
     {
         NSString* error = @"missing arguments in getLog";
         NSLog(@"CDVNativeLogs: %@",error);
@@ -37,24 +37,10 @@
     if ([value isKindOfClass:[NSNumber class]]) {
         nbLines = [value intValue];
     }
-    
-    value = [command argumentAtIndex:1];
-    if ([value isKindOfClass:[NSNumber class]]) {
-        bClipboard = [value boolValue];
-    }
-    
 
-    NSString* pathForLog = [self getPath];
     NSString *stringContent = [NSString stringWithContentsOfFile:pathForLog encoding:NSUTF8StringEncoding error:nil];
 
-    NSString* log = @"";
     NSArray *brokenByLines=[stringContent componentsSeparatedByString:@"\n"];
-    
-    if (bClipboard) 
-    {
-        UIPasteboard *pb = [UIPasteboard generalPasteboard];
-        [pb setString:log];
-    }
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:brokenByLines];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
